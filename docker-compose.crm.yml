@@ -1,0 +1,66 @@
+services:
+  crm-db:
+    image: postgres:16-alpine
+    container_name: prokolesa-crm-db
+    environment:
+      POSTGRES_DB: prokolesa_crm
+      POSTGRES_USER: crm
+      POSTGRES_PASSWORD: crm
+    ports:
+      - "5433:5432"
+    volumes:
+      - crm-db-data:/var/lib/postgresql/data
+
+  crm-redis:
+    image: redis:7-alpine
+    container_name: prokolesa-crm-redis
+    ports:
+      - "6380:6379"
+
+  crm-api:
+    image: node:20-alpine
+    container_name: prokolesa-crm-api
+    working_dir: /workspace/apps/crm-api
+    command: >
+      sh -lc "apk add --no-cache zip >/dev/null &&
+      mkdir -p node_modules &&
+      ln -sfn /workspace/node_modules/@prisma node_modules/@prisma &&
+      ln -sfn /workspace/node_modules/.prisma node_modules/.prisma &&
+      node /workspace/node_modules/prisma/build/index.js generate --schema prisma/schema.prisma &&
+      node /workspace/node_modules/prisma/build/index.js db push --schema prisma/schema.prisma --accept-data-loss &&
+      node /workspace/node_modules/tsx/dist/cli.mjs watch src/server.ts"
+    environment:
+      PORT: 4200
+      DATABASE_URL: postgresql://crm:crm@crm-db:5432/prokolesa_crm?schema=public
+      REDIS_URL: redis://crm-redis:6379
+      FILE_STORAGE_ROOT: /workspace/.crm-storage
+      JWT_SECRET: change-me
+      LEGACY_CRM_DATA_DIR: /legacy-source
+    volumes:
+      - ./:/workspace
+      - "/Users/Thompson/Documents/codex project/New project/apps/backend/data:/legacy-source:ro"
+    depends_on:
+      - crm-db
+      - crm-redis
+    ports:
+      - "4200:4200"
+
+  crm-web:
+    image: node:20-alpine
+    container_name: prokolesa-crm-web
+    working_dir: /workspace/apps/crm-web
+    command: >
+      sh -lc "node /workspace/apps/crm-web/node_modules/next/dist/bin/next dev -p 3100 --hostname 0.0.0.0"
+    environment:
+      CRM_API_INTERNAL_BASE: http://crm-api:4200/api/v1
+      NEXT_PUBLIC_CRM_API_BASE: http://localhost:4200/api/v1
+    volumes:
+      - ./:/workspace
+      - "/Users/Thompson/Documents/codex project/New project/node_modules:/workspace/apps/crm-web/node_modules:ro"
+    depends_on:
+      - crm-api
+    ports:
+      - "3100:3100"
+
+volumes:
+  crm-db-data:

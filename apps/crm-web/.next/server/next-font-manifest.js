@@ -1,0 +1,1 @@
+self.__NEXT_FONT_MANIFEST="{\"pages\":{},\"app\":{\"/Users/shamsiddintadjiddinov40gmail.com/Desktop/CRM/apps/crm-web/app/layout\":[\"static/media/28793f5c5e3d822d-s.p.woff2\",\"static/media/26d4368bf94c0ec4-s.p.woff2\",\"static/media/36966cca54120369-s.p.woff2\"]},\"appUsingSizeAdjust\":true,\"pagesUsingSizeAdjust\":false}"

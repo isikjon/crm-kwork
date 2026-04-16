@@ -1,0 +1,28 @@
+{
+  "name": "prokolesa-crm-dashboard",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/backend",
+    "apps/dashboard",
+    "apps/crm-api",
+    "apps/crm-web"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w apps/backend\" \"npm run dev -w apps/dashboard\"",
+    "dev:crm": "concurrently \"npm run dev -w apps/crm-api\" \"npm run dev -w apps/crm-web\"",
+    "build": "npm run build -w apps/backend && npm run build -w apps/dashboard",
+    "build:crm": "npm run build -w apps/crm-api && npm run build -w apps/crm-web",
+    "lint": "npm run lint -w apps/backend && npm run lint -w apps/dashboard",
+    "lint:crm": "npm run lint -w apps/crm-api && npm run lint -w apps/crm-web",
+    "typecheck": "npm run typecheck -w apps/backend && npm run typecheck -w apps/dashboard",
+    "typecheck:crm": "npm run typecheck -w apps/crm-api && npm run typecheck -w apps/crm-web",
+    "test": "npm run test -w apps/backend && npm run typecheck -w apps/backend && npm run typecheck -w apps/dashboard",
+    "crm:prisma:generate": "npm run prisma:generate -w apps/crm-api",
+    "crm:prisma:validate": "npm run prisma:validate -w apps/crm-api"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.6.3"
+  }
+}
